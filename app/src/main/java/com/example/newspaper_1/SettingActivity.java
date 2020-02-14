@@ -49,6 +49,16 @@ public class SettingActivity extends AppCompatActivity {
         setEditTextInputSpace(setting_username);
         setEditTextInputSpace(setting_password);
 
+        //控制最大长度
+        int maxLengthUserName =12;
+        int maxLengthPassword = 12;
+        InputFilter[] fArray =new InputFilter[1];
+        fArray[0]=new  InputFilter.LengthFilter(maxLengthUserName);
+        setting_username.setFilters(fArray);
+        InputFilter[] fArray1 =new InputFilter[1];
+        fArray1[0]=new  InputFilter.LengthFilter(maxLengthPassword);
+        setting_password.setFilters(fArray1);
+
         //用户名修改
         btn_setting_username.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -95,14 +105,18 @@ public class SettingActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(new_password)){
                     Toast.makeText(SettingActivity.this, "密码不能为空", Toast.LENGTH_SHORT).show();
                 }else {
-                    MyDataBaseHelper dataBaseHelper = new MyDataBaseHelper(SettingActivity.this);
-                    SQLiteDatabase database = dataBaseHelper.getReadableDatabase(); //打开数据库
-                    ContentValues values = new ContentValues();
-                    values.put("password", new_password);
-                    database.update("user", values, "id=?", new String[]{user_id});
-                    values.clear();
-                    database.close();
-                    Toast.makeText(SettingActivity.this, "密码修改成功", Toast.LENGTH_SHORT).show();
+                    if (setting_password.length() < 6){
+                        Toast.makeText(SettingActivity.this, "密码长度不能小于6位！", Toast.LENGTH_SHORT).show();
+                    } else {
+                        MyDataBaseHelper dataBaseHelper = new MyDataBaseHelper(SettingActivity.this);
+                        SQLiteDatabase database = dataBaseHelper.getReadableDatabase(); //打开数据库
+                        ContentValues values = new ContentValues();
+                        values.put("password", new_password);
+                        database.update("user", values, "id=?", new String[]{user_id});
+                        values.clear();
+                        database.close();
+                        Toast.makeText(SettingActivity.this, "密码修改成功", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });

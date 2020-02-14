@@ -83,7 +83,7 @@
                 android:id="@+id/content_massage_num"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="22"
+                android:text=""
                 android:textSize="12sp">
             </TextView>
 
@@ -108,7 +108,7 @@
                 android:id="@+id/content_one_num"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="34"
+                android:text=""
                 android:textSize="12sp">
             </TextView>
 

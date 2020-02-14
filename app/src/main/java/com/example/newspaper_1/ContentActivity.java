@@ -1,12 +1,15 @@
 package com.example.newspaper_1;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -45,6 +48,10 @@ public class ContentActivity extends AppCompatActivity {
     private String newsname;
     private String images;
 
+    private static final String TAG = ContentActivity.class.getSimpleName();
+
+    private String errorHtml = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,22 +73,22 @@ public class ContentActivity extends AppCompatActivity {
         progressDialog.setCancelable(true);
         progressDialog.show();
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                progressDialog.dismiss();
-            }
-        });
-        t.start();
-
+//        Thread t = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                progressDialog.dismiss();
+//            }
+//        });
+//        t.start();
+        errorHtml = "<html><body><h1> </h1><h2>网络似乎开小差了……</h2></body></html>";
         WebView webView = (WebView) findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new MyWebViewClient());
         webView.loadUrl(url);
         //progressDialog.dismiss();
 
@@ -169,8 +176,14 @@ public class ContentActivity extends AppCompatActivity {
                         response.append(line);
                     }
                     showResponse(response.toString());
+                    progressDialog.dismiss();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    progressDialog.dismiss();
+                    comments = "-1";
+                    long_comments = "0";
+                    short_comments = "0";
+                    WifiOFF();
                 } finally {
                     if (reader != null) {
                         try {
@@ -231,7 +244,27 @@ public class ContentActivity extends AppCompatActivity {
         });
     }
 
-        //今日新闻的
+    //在线程中进行到catch 无网络
+    public void WifiOFF() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AlertDialog.Builder dialog = new AlertDialog.Builder(ContentActivity.this);
+                dialog.setTitle("网络连接失败");
+                dialog.setMessage("请检查网络设置。");
+                dialog.setCancelable(true);
+//                dialog.setPositiveButton("退出", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        finish();
+//                    }
+//                });
+                dialog.show();
+            }
+        });
+    }
+
+        //评论
         public void showResponse( final String string){
 
 
@@ -255,8 +288,60 @@ public class ContentActivity extends AppCompatActivity {
 
             } catch (JSONException e) {
                 e.printStackTrace();
+
             }
 
         }
+
+//    private void setErrorPage(WebView view) {
+//        RelativeLayout layout = new RelativeLayout(context);
+//        View v = LayoutInflater.from(context).inflate(R.layout.item_white_main, null);
+//        layout.addView(v);
+//        layout.setGravity(Gravity.CENTER);
+//        RelativeLayout.LayoutParams relparams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+//        relparams.addRule(RelativeLayout.CENTER_IN_PARENT);
+//        addContentView(layout, relparams);
+//        layout.setVisibility(View.VISIBLE);
+//        view.setVisibility(View.GONE);
+//    }
+@Override
+protected void onResume() {
+
+    super.onResume();
+    Log.i(TAG, "–onResume()–");
+}
+
+    public class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.i(TAG, "-MyWebViewClient->shouldOverrideUrlLoading()–");
+            view.loadUrl(url);
+            return true;
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            Log.i(TAG, "-MyWebViewClient->onPageStarted()–");
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            Log.i(TAG, "-MyWebViewClient->onPageFinished()–");
+            super.onPageFinished(view, url);
+        }
+
+        @Override
+        public void onReceivedError(WebView view, int errorCode,
+                                    String description, String failingUrl) {
+            super.onReceivedError(view, errorCode, description, failingUrl);
+
+            Log.i(TAG, "-MyWebViewClient->onReceivedError()–\n errorCode="+errorCode+" \ndescription="+description+" \nfailingUrl="+failingUrl);
+            //这里进行无网络或错误处理，具体可以根据errorCode的值进行判断，做跟详细的处理。
+            view.loadData(errorHtml, "text/html", "UTF-8");
+
+        }
+    }
+
 
 }

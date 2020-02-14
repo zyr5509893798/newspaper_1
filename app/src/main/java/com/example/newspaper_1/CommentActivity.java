@@ -27,9 +27,9 @@ import java.util.Map;
 public class CommentActivity extends AppCompatActivity {
 
     private String news_id;
-    private String string_allnum;
-    private String long_comment_num;
-    private String short_comment_num;
+    private String string_allnum = "0";
+    private String long_comment_num = "0";
+    private String short_comment_num = "0";
 //    private String newsname;
 //    private String images;
 //    private String url;
@@ -59,7 +59,7 @@ public class CommentActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.comment_recyclerview);
 //        comment_back = findViewById(R.id.comment_back);
         text_allnum = findViewById(R.id.comment_allnum);
-        text_allnum.setText(string_allnum);
+//        text_allnum.setText(string_allnum);
 
 //        //返回功能
 //        comment_back.setOnClickListener(new View.OnClickListener() {
@@ -74,6 +74,15 @@ public class CommentActivity extends AppCompatActivity {
 //                finish();
 //            }
 //        });
+        if (string_allnum.equals("-1")) {
+//            map = new HashMap();
+//            map.put("cheak", "4");
+//            list.add(map);
+            string_allnum = "0";
+        }
+
+        text_allnum.setText(string_allnum);
+
         if ( !long_comment_num.equals("0")) {
             map = new HashMap();
             map.put("cheak", "1");
@@ -117,6 +126,9 @@ public class CommentActivity extends AppCompatActivity {
                         showResponseShort(response1.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
+                    map = new HashMap();
+                    map.put("cheak", "4");
+                    list.add(map);
                 } finally {
                     if (reader != null) {
                         try {

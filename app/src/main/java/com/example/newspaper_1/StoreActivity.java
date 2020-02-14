@@ -91,7 +91,7 @@ public class StoreActivity extends AppCompatActivity {
                 recyclerView.setLayoutManager(new LinearLayoutManager(StoreActivity.this));//纵向
                 recyclerView.setAdapter(new StoreAdapter(StoreActivity.this, list));//绑适配器
 
-                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
+                refreshlayout.finishRefresh();//传入false表示刷新失败
             }
         });
     }

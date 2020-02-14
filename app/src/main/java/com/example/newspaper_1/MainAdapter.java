@@ -23,6 +23,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     public static final int ONE_ITEM = 1;
     public static final int TWO_ITEM = 2;
+    public static final int THREE_ITEM = 3;
 
 
     public MainAdapter(Context context, List<Map<String, Object>> list) {
@@ -37,6 +38,8 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             return TWO_ITEM;
 //        } else if (list.get(position).getFromtype().equals("1")) {
 //            return ONE_ITEM;
+        } else if (list.size() == 0) {
+            return THREE_ITEM;
         } else {
             return ONE_ITEM;
         }
@@ -48,6 +51,9 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         if (viewType == TWO_ITEM) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_main_date, parent, false);
             return new DateViewHolder(view);
+        } else if (viewType == THREE_ITEM) {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_white_main, parent, false);
+            return new WhiteMainViewHolder(view);
         } else {
             View view = LayoutInflater.from(context).inflate(R.layout.item_main, parent, false);
             return new RecyclerViewHolder(view);
@@ -84,7 +90,11 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         } else if (holder instanceof DateViewHolder) {
             DateViewHolder dateViewHolder = (DateViewHolder) holder;
             dateViewHolder.main_date.setText(list.get(position).get("item").toString());//将子控件中的文本换为map中的文本
+        } else if (holder instanceof WhiteMainViewHolder) {
+            WhiteMainViewHolder whiteMainViewHolder = (WhiteMainViewHolder) holder;
+
         }
+
         //在这里写相当于对每一个button子控件绑监听
 //        holder.button.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -99,7 +109,11 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return list.size();
+        if (list.size() == 0) {
+            return 1;
+        } else {
+            return list.size();
+        }
     }
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder {
@@ -125,6 +139,14 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             super(itemView);
 
             main_date = itemView.findViewById(R.id.main_date);
+        }
+    }
+
+    class WhiteMainViewHolder extends RecyclerView.ViewHolder {
+        private TextView main_white;
+
+        WhiteMainViewHolder(@NonNull View itemView) {
+            super(itemView);
         }
     }
 }

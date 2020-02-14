@@ -22,6 +22,8 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public static final int ONE_ITEM = 1;
     public static final int TWO_ITEM = 2;
     public static final int THREE_ITEM = 3;
+    public static final int FOUR_ITEM = 4;
+    public static final int FIVE_ITEM = 5;
     private String cheak;
 
 
@@ -35,7 +37,7 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (list.size() != 0) {
             cheak = list.get(position).get("cheak").toString();
         }else{
-            cheak = "0";
+            cheak = "3";
         }
         if (cheak.equals("1")) {
             return TWO_ITEM;
@@ -43,8 +45,10 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //            return ONE_ITEM;
         } else if (cheak.equals("2")){
             return THREE_ITEM;
-        } else if (cheak.equals("0")){
-            return ONE_ITEM;
+        } else if (cheak.equals("3")) {
+            return FOUR_ITEM;
+        } else if (cheak.equals("4")) {
+            return FIVE_ITEM;
         } else {
             return ONE_ITEM;
         }
@@ -56,9 +60,15 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == TWO_ITEM) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_long_comment, parent, false);
             return new LongViewHolder(view);
-        } else if (viewType == THREE_ITEM){
+        } else if (viewType == THREE_ITEM) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_short_comment, parent, false);
             return new ShortViewHolder(view);
+        } else if (viewType == FOUR_ITEM) {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_white_comment, parent, false);
+            return new WhiteCommentViewHolder(view);
+        } else if (viewType == FIVE_ITEM) {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_web_comment, parent, false);
+            return new WebCommentViewHolder(view);
         } else {
             View view = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false);
             return new RecyclerViewHolder(view);
@@ -107,7 +117,11 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return list.size();
+        if (list.size() == 0) {
+            return 1;
+        } else {
+            return list.size();
+        }
     }
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder {
@@ -149,6 +163,20 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //            tvLoading = (TextView) itemView.findViewById(R.id.tv_loading);
 //            llEnd = (LinearLayout) itemView.findViewById(R.id.ll_end);
             jjj = itemView.findViewById(R.id.short_comment_num);
+        }
+    }
+
+    class WhiteCommentViewHolder extends RecyclerView.ViewHolder {
+
+        WhiteCommentViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    class WebCommentViewHolder extends RecyclerView.ViewHolder {
+
+        WebCommentViewHolder(View itemView) {
+            super(itemView);
         }
     }
 

@@ -17,13 +17,12 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 import java.util.Map;
 
-public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder>{
+public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private List<Map<String, Object>> list;
     private Context context;
     public static final int ONE_ITEM = 1;
     public static final int TWO_ITEM = 2;
-    public static final int THREE_ITEM = 3;
 
 
     public StoreAdapter(Context context, List<Map<String, Object>> list) {
@@ -42,38 +41,60 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder>{
 //        }
 //    }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (list.size() == 0) {
+            return TWO_ITEM;
+
+        } else {
+            return ONE_ITEM;
+        }
+    }
+
     @NonNull
     @Override
-    public StoreAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_store, parent, false);
-
-        return new ViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        //View view = LayoutInflater.from(context).inflate(R.layout.item_store, parent, false);
+        if (viewType == TWO_ITEM) {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_white_store, parent, false);
+            return new WhiteStoreViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_store, parent, false);
+            return new RecyclerViewHolder(view);
+        }
     }
 
     @Override //对每一个子控件进行操作，在这里可以对子控件中的内容，按钮监听等进行控制
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.store_newsname.setText(list.get(position).get("newsname").toString());//将子控件中的文本换为map中的文本
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+        if (holder instanceof RecyclerViewHolder) {
+            RecyclerViewHolder recyclerViewHolder = (RecyclerViewHolder) holder;
+            recyclerViewHolder.store_newsname.setText(list.get(position).get("newsname").toString());//将子控件中的文本换为map中的文本
 //        holder.main_image.setImageURI((Uri) list.get(position).get("images"));
-        final String url = list.get(position).get("url").toString(); //这个非常重要
-        final String newsname = list.get(position).get("newsname").toString(); //这个非常重要
-        final String news_id = list.get(position).get("news_id").toString(); //这个非常重要
-        final String url1 = list.get(position).get("images").toString(); //这个非常重要
-        String newStr = url1.replace("[","");
-        final String newStr2 = newStr.replace("]","");
-        Glide.with(context).load(newStr2).into(holder.store_picture);
+            final String url = list.get(position).get("url").toString(); //这个非常重要
+            final String newsname = list.get(position).get("newsname").toString(); //这个非常重要
+            final String news_id = list.get(position).get("news_id").toString(); //这个非常重要
+            final String url1 = list.get(position).get("images").toString(); //这个非常重要
+            String newStr = url1.replace("[","");
+            final String newStr2 = newStr.replace("]","");
+            Glide.with(context).load(newStr2).into(recyclerViewHolder.store_picture);
 
 
-        holder.store_news.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, ContentActivity.class);
-                intent.putExtra("url", url);
-                intent.putExtra("id", news_id);
-                intent.putExtra("images", newStr2);
-                intent.putExtra("newsname", newsname);
-                context.startActivity(intent);
-            }
-        });
+            recyclerViewHolder.store_news.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ContentActivity.class);
+                    intent.putExtra("url", url);
+                    intent.putExtra("id", news_id);
+                    intent.putExtra("images", newStr2);
+                    intent.putExtra("newsname", newsname);
+                    context.startActivity(intent);
+                }
+            });
+        } else if (holder instanceof WhiteStoreViewHolder) {
+            WhiteStoreViewHolder whiteStoreViewHolder = (WhiteStoreViewHolder) holder;
+            whiteStoreViewHolder.white_store.setText("暂无收藏");
+        }
+
         //在这里写相当于对每一个button子控件绑监听
 //        holder.button.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -88,20 +109,34 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return list.size();
+        if (list.size() > 0) {
+            return list.size();
+        } else {
+            return 1;
+        }
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class RecyclerViewHolder extends RecyclerView.ViewHolder {
         private TextView store_newsname;
         private ImageView store_picture;
         private LinearLayout store_news;
 
-        ViewHolder(@NonNull View itemView) {
+        RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
 
             store_newsname = itemView.findViewById(R.id.store_newsname);
             store_picture = itemView.findViewById(R.id.store_picture);
             store_news = itemView.findViewById(R.id.store_news);
+        }
+    }
+
+    class WhiteStoreViewHolder extends RecyclerView.ViewHolder {
+        private TextView white_store;
+
+        WhiteStoreViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            white_store = itemView.findViewById(R.id.white_store);
         }
     }
 }

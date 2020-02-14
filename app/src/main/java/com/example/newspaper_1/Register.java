@@ -36,6 +36,16 @@ public class Register extends AppCompatActivity {
         final MyDataBaseHelper dataBaseHelper = new MyDataBaseHelper(Register.this);
         final SQLiteDatabase database = dataBaseHelper.getReadableDatabase();
 
+        //控制最大长度
+        int maxLengthUserName =12;
+        int maxLengthPassword = 12;
+        InputFilter[] fArray =new InputFilter[1];
+        fArray[0]=new  InputFilter.LengthFilter(maxLengthUserName);
+        UserNameEnrol.setFilters(fArray);
+        InputFilter[] fArray1 =new InputFilter[1];
+        fArray1[0]=new  InputFilter.LengthFilter(maxLengthPassword);
+        PasswordEnrol.setFilters(fArray1);
+
         /* 注册界面的 注册 按钮的监听 接收数据 检验数据 转到登陆界面 */
         Button btn2 = (Button)findViewById(R.id.register);
         btn2.setOnClickListener(new View.OnClickListener(){
@@ -51,34 +61,39 @@ public class Register extends AppCompatActivity {
                 }else if (TextUtils.isEmpty(Password)){
                     Toast.makeText(Register.this, "密码不能为空", Toast.LENGTH_SHORT).show();
                 }else {
-                    int find = 0;
-                    MyDataBaseHelper dataBaseHelper = new MyDataBaseHelper(Register.this);
-                    SQLiteDatabase database = dataBaseHelper.getReadableDatabase(); //打开数据库
-                    Cursor cursor = database.query("user", new String[]{"username"}, null, null, null, null, null);
-                    if (cursor.moveToFirst()) {
-                        do {
-                            String username = cursor.getString(cursor.getColumnIndex("username"));
-                            if (UserName.equals(username)){
-                                find = 1;
-                                break;
-                            }
+                    if (PasswordEnrol.length() < 6){
+                        Toast.makeText(Register.this,"密码长度不能小于6位！", Toast.LENGTH_SHORT).show();
+                    }else {
+                        int find = 0;
+                        MyDataBaseHelper dataBaseHelper = new MyDataBaseHelper(Register.this);
+                        SQLiteDatabase database = dataBaseHelper.getReadableDatabase(); //打开数据库
+                        Cursor cursor = database.query("user", new String[]{"username"}, null, null, null, null, null);
+                        if (cursor.moveToFirst()) {
+                            do {
+                                String username = cursor.getString(cursor.getColumnIndex("username"));
+                                if (UserName.equals(username)){
+                                    find = 1;
+                                    break;
+                                }
 
-                        } while (cursor.moveToNext());
+                            } while (cursor.moveToNext());
+                        }
+                        cursor.close();
+                        if (find == 0) {
+                            //向表中添加数据
+                            ContentValues values = new ContentValues();
+                            values.put("username", UserName);
+                            values.put("password", Password);
+                            database.insert("user", null, values);
+                            values.clear();
+                            database.close();
+                            Toast.makeText(Register.this, "注册成功", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else if (find == 1){
+                            Toast.makeText(Register.this,"该用户名已存在", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    cursor.close();
-                    if (find == 0) {
-                        //向表中添加数据
-                        ContentValues values = new ContentValues();
-                        values.put("username", UserName);
-                        values.put("password", Password);
-                        database.insert("user", null, values);
-                        values.clear();
-                        database.close();
-                        Toast.makeText(Register.this, "注册成功", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else if (find == 1){
-                        Toast.makeText(Register.this,"该用户名已存在", Toast.LENGTH_SHORT).show();
-                    }
+
                 }
             }
         });

@@ -1,5 +1,6 @@
 package com.example.newspaper_1;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,6 +26,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
+import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
@@ -59,6 +62,7 @@ public class Main extends AppCompatActivity  {
 
     int n = 0;
     int p = 0;
+    int f = 0;
     private ViewPager vp;
     private String imageUrl[];
     private List<ImageView> data;
@@ -175,6 +179,8 @@ public class Main extends AppCompatActivity  {
         progressDialog.show();
 
 
+
+
         Thread thread;
             thread = new Thread(new Runnable() {
                 @Override
@@ -202,7 +208,7 @@ public class Main extends AppCompatActivity  {
                         //其他日期新闻
                         NowTime = getOldDate(0);
                         for (int i = 0; i < 3; i++) {
-                            URL url1 = new URL("http://news.at.zhihu.com/api/1.2/stories/before/" + NowTime);
+                            URL url1 = new URL("http://news-at.zhihu.com/api/4/stories/before/" + NowTime);
                             connection = (HttpURLConnection) url1.openConnection();
                             connection.setRequestMethod("GET");
                             connection.setConnectTimeout(8000);
@@ -215,13 +221,15 @@ public class Main extends AppCompatActivity  {
                             while ((line1 = reader.readLine()) != null) {
                                 response1.append(line1);
                             }
-                            showResponse(response1.toString());
+                            showResponseTwo(response1.toString());
                             kk = kk - 1;
                             NowTime = getOldDate(kk);
                             progressDialog.dismiss();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        progressDialog.dismiss();
+                        WifiOFF();
                     } finally {
                         if (reader != null) {
                             try {
@@ -237,10 +245,20 @@ public class Main extends AppCompatActivity  {
 
             thread.start();
 
+//            if (f == 1) {
+//                dialog.show();
+//            }else {
+//
+//            }
+
         RefreshLayout refreshLayout = (RefreshLayout)findViewById(R.id.refreshLayout);
+        refreshLayout.setRefreshHeader(new ClassicsHeader(this));
+        refreshLayout.setRefreshFooter(new ClassicsFooter(this).setFinishDuration(0));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
-            public void onRefresh(RefreshLayout refreshlayout) {
+            public void onRefresh(final RefreshLayout refreshlayout) {
+
+                final int[] fresh_flag = {0};
 
                 Thread thread;
 
@@ -272,7 +290,7 @@ public class Main extends AppCompatActivity  {
                             pp = 0;
                             kk = -3;
                             for (int i = 0; i < 3; i++) {
-                                URL url1 = new URL("http://news.at.zhihu.com/api/1.2/stories/before/" + NowTimeNoChange);
+                                URL url1 = new URL("http://news-at.zhihu.com/api/4/stories/before/" + NowTimeNoChange);
                                 connection = (HttpURLConnection) url1.openConnection();
                                 connection.setRequestMethod("GET");
                                 connection.setConnectTimeout(8000);
@@ -285,11 +303,15 @@ public class Main extends AppCompatActivity  {
                                 while ((line1 = reader.readLine()) != null) {
                                     response1.append(line1);
                                 }
-                                showResponse(response1.toString());
+                                showResponseTwo(response1.toString());
                                 pp = pp - 1;
                                 NowTimeNoChange = getOldDate(pp);}
+                            refreshlayout.finishRefresh(/*,false*/);//传入false表示刷新失败
                         } catch (Exception e) {
                             e.printStackTrace();
+                            fresh_flag[0] = 1;
+                            WifiOFF();
+                            refreshlayout.finishRefresh(false);//传入false表示刷新失败
                         } finally {
                             if (reader != null) {
                                 try {
@@ -304,13 +326,18 @@ public class Main extends AppCompatActivity  {
                 });
 
                 thread.start();
+//                if (fresh_flag[0] == 0) {
+//                    refreshlayout.finishRefresh(1000/*,false*/);//传入false表示刷新失败
+//                } else {
+//
+//                }
 
-                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
+                //refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
             }
         });
         refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
-            public void onLoadMore(RefreshLayout refreshlayout) {
+            public void onLoadMore(final RefreshLayout refreshlayout) {
 
                 Thread thread;
 
@@ -324,12 +351,16 @@ public class Main extends AppCompatActivity  {
                             //获取新闻
                             for (int i = 0; i < 3; i++) {
                                 NowTimeLoadMore = getOldDate(kk);
-                                URL url = new URL("http://news.at.zhihu.com/api/1.2/stories/before/" + NowTimeLoadMore);
+                                URL url = new URL("http://news-at.zhihu.com/api/4/stories/before/" + NowTimeLoadMore);
+//                                URL url = new URL("http://news.at.zhihu.com/api/1.2/stories/before/" + NowTimeLoadMore);
                                 connection = (HttpURLConnection) url.openConnection();
                                 connection.setRequestMethod("GET");
                                 connection.setConnectTimeout(8000);
                                 connection.setReadTimeout(8000);
                                 InputStream in = connection.getInputStream();
+                                if (i == 0) {
+                                    refreshlayout.finishLoadMore();
+                                }
                                 //读取刚刚获取的输入流
                                 reader = new BufferedReader(new InputStreamReader(in));
                                 StringBuilder response = new StringBuilder();
@@ -337,11 +368,14 @@ public class Main extends AppCompatActivity  {
                                 while ((line = reader.readLine()) != null) {
                                     response.append(line);
                                 }
-                                showResponse(response.toString());
+                                showResponseTwo(response.toString());
                                 kk = kk - 1;
                             }
+                            //refreshlayout.finishLoadMore();//传入false表示加载失败
                         } catch (Exception e) {
                             e.printStackTrace();
+                            WifiOFF();
+                            refreshlayout.finishLoadMore(false);//传入false表示加载失败
                         } finally {
                             if (reader != null) {
                                 try {
@@ -356,8 +390,6 @@ public class Main extends AppCompatActivity  {
                 });
 
                 thread.start();
-
-                refreshlayout.finishLoadMore(2000/*,false*/);//传入false表示加载失败
             }
         });
 
@@ -414,6 +446,26 @@ public class Main extends AppCompatActivity  {
                 break;
 
         }
+    }
+
+    //在线程中进行到catch 无网络
+    public void WifiOFF() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this);
+                dialog.setTitle("网络连接失败");
+                dialog.setMessage("请检查网络设置。");
+                dialog.setCancelable(true);
+//                dialog.setPositiveButton("退出", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        finish();
+//                    }
+//                });
+                dialog.show();
+            }
+        });
     }
 
     // @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -495,6 +547,62 @@ public class Main extends AppCompatActivity  {
 //                int news_id = jsonObject1.getInt("news_id");
                     String url = jsonObject1.getString("url");
                     String images = jsonObject1.getString("image");
+                    String title = jsonObject1.getString("title");
+                    String hint = jsonObject1.getString("hint");
+                    String news_id = jsonObject1.getString("id");
+
+
+                    map = new HashMap();
+
+//                map.put("news_id",news_id);
+                    map.put("url", url);
+                    map.put("images", images);
+                    map.put("title", title);
+                    map.put("hint", hint);
+                    map.put("id", news_id);
+                    map.put("cheak", "1");
+                    map.put("item", "0");
+
+                    list.add(map);
+                }
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    recyclerView.setLayoutManager(new LinearLayoutManager(Main.this));//纵向
+                    recyclerView.setAdapter(new MainAdapter(Main.this, list));
+                    recyclerView.setNestedScrollingEnabled(false);
+                }
+            });
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //之前新闻新接口
+    public void showResponseTwo(final String string) {
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONArray jsonArray = jsonObject.getJSONArray("stories");
+            for (int i = -1; i < jsonArray.length(); i++) {
+                if (i == -1) {
+                    String date11 = getOldDate11(kk - 1);
+                    map = new HashMap();
+                    map.put("cheak", "0");
+                    map.put("item", date11);
+                    list.add(map);
+                } else {
+                    JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+//                int news_id = jsonObject1.getInt("news_id");
+                    String url = jsonObject1.getString("url");
+                    //String images = jsonObject1.getString("image");
+                    JSONArray jsonArray3 = jsonObject1.getJSONArray("images");
+                    String images = jsonArray3.get(0).toString();
                     String title = jsonObject1.getString("title");
                     String hint = jsonObject1.getString("hint");
                     String news_id = jsonObject1.getString("id");

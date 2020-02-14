@@ -32,6 +32,16 @@ public class Login extends AppCompatActivity {
         setEditTextInputSpace(UserNameLogin);
         setEditTextInputSpace(PasswordLogin);
 
+        //控制最大长度
+        int maxLengthUserName =12;
+        int maxLengthPassword = 12;
+        InputFilter[] fArray =new InputFilter[1];
+        fArray[0]=new  InputFilter.LengthFilter(maxLengthUserName);
+        UserNameLogin.setFilters(fArray);
+        InputFilter[] fArray1 =new InputFilter[1];
+        fArray1[0]=new  InputFilter.LengthFilter(maxLengthPassword);
+        PasswordLogin.setFilters(fArray1);
+
         //登陆界面 登录 按钮的监听
         Button btn2 = (Button)findViewById(R.id.btn_login);
         btn2.setOnClickListener(new View.OnClickListener(){

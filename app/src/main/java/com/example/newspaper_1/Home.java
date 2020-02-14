@@ -346,13 +346,13 @@ public class Home extends AppCompatActivity {
                 dialog.setTitle("是否更改头像？");
                 dialog.setMessage("若更改头像请点击确定");
                 dialog.setCancelable(false);
-                dialog.setPositiveButton("取消", new DialogInterface.OnClickListener() {
+                dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
                 });
-                dialog.setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 //                        Toast.makeText(Home.this, "相机相机相册相册", Toast.LENGTH_SHORT).show();
